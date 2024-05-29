@@ -1,0 +1,286 @@
+<html>
+
+<head>
+  <title>Match</title>
+  <link rel="stylesheet" href="./css/after.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gochi+Hand&family=Outfit:wght@100..900&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div id="loading" class="loading_screen display_none">
+    <div>loading...</div>
+  </div>
+  <div id="match_body">
+    <div id="navbar" class="navbar">
+      <div class="logo">
+        <a href="/">
+          <p>Talkis</p>
+        </a>
+      </div>
+      <div class="menu-container">
+        <a href="/match">Match</a>
+        <a href="/profile">Profile</a>
+        <a href="/friends">Friends</a>
+      </div>
+      <div class="button-container">
+        <button class="brown short"><a href="/">Log out</a></button>
+      </div>
+    </div>
+    <div class="match-container">
+      <div class="titles-container">
+        <p>Find your partner</p>
+        <p>Talk with them</p>
+        <p>Become friends</p>
+      </div>
+      <div class="underline"></div>
+      <div class="main-container">
+        <div class="match-info">
+          <p id="nlanguage"></p>
+        </div>
+        <div class="match-info">
+          <p id="llanguage"></p>
+        </div>
+        <div class="match-info">
+          <p id="interest"></p>
+        </div>
+        <div class="match-button-container">
+          <button class="match brown long" id="stranger_audio_button">Audio Matching</button>
+          <button class="match brown long" id="stranger_video_button">Video Matching</button>
+        </div>
+        <p id="myfuckingage" class="display_none"></p>
+
+      </div>
+    </div>
+    <div class="popup" id="popup-1">
+      <div class="overlay">
+        <div class="content">
+          <div class="question-container">
+            <p>Was this person respectful?</p>
+            <div class="popup-button-container">
+              <button class="green short no" id="norespectfulbutton">No</button>
+              <button class="green short yes" id="yesrespectfulbutton">Yes</button>
+            </div>
+          </div>
+          <div class="question-container">
+            <p>Was this over 18?</p>
+            <div class="popup-button-container">
+              <button class="green short no" onclick="toggleReviewPopup()" id="noagebutton">No</button>
+              <button class="green short yes" onclick="toggleReviewPopup()" id="yesagebutton">Yes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup" id="popup-2">
+      <div class="overlay">
+        <div class="content">
+          <div class="question-container">
+            <p>Do you want to add this person as a friend?</p>
+            <div class="popup-button-container">
+              <button class="green short no" onclick="toggleFriendPopup()" id="nofriendbutton">No</button>
+              <button class="brown short yes" onclick="toggleFriendPopup()" id="yesfriendbutton">Yes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="notespopup">
+    <div class="popup" id="popup-allnote">
+      <div class="overlay">
+        <div class="notes-content">
+          <div class="close-btn" onclick="toggleNotesPopup()">X</div>
+
+          <div class="notes-container">
+            <div class="notes-header">
+              <h1>Notes</h1>
+            </div>
+            <div class="notes-body" id="results"></div>
+            <div class="notes-footer">
+              <button class="create-button" id="createnote-button">
+                +Create a new note
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class=" popup" id="popup-singlenote">
+      <div class="overlay">
+        <div class="note-content">
+          <div class="close-btn" onclick="toggleNotePopup(), clearValue()">X</div>
+          <div class="note-container">
+            <div class="note-header">
+              <h1><input type="text" id="note-title" placeholder="Title"></h1>
+            </div>
+            <div class="note-body" id="single-results">
+              <textarea id="note-textarea" placeholder="Write your note here..."></textarea>
+            </div>
+            <div class="note-footer">
+              <button class="deletenote-button short" id="deletenote-button">
+                <img src="./utils/images/delete.png" alt="">
+              </button>
+              <button class="savenote-button short" id="savenote-button">
+                <img src="./utils/images/save.png" alt="">
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="notes" onclick="toggleNotesPopup()"><img src="./utils/images/notes.png" alt=""></button>
+  <div class="main_container display_none" id="main_container">
+    <div class="call_container">
+      <div class="videos_container">
+        <div class="with_background">
+          <div id="video_placeholder" class="videos_placeholder display_none">
+            <img src="./utils/images/logo.png" alt="">
+          </div>
+          <video src="" class="remote_video" autoplay id="remote_video"></video>
+          <button id="fullscreenButton" class="fullscreenButton display_none"><img src="./utils/images/fullscreen.png"
+              alt=""></button>
+        </div>
+
+        <div class="local_video_container">
+          <div id="video_placeholder2" class="videos_placeholder2 display_none">
+            <img src="./utils/images/logo.png" alt="">
+          </div>
+          <video src="" class="local_video" autoplay id="local_video"></video>
+        </div>
+        <div class="call_buttons_container" id="call_buttons">
+          <button class="call_button_large" id="hang_up_button">
+            <img src="./utils/images/hangUp.png">
+          </button>
+          <button class="call_button_small" id="mic_button">
+            <img src="./utils/images/mic.png" id="mic_button_image">
+          </button>
+          <button class="call_button_small" id="camera_button">
+            <img src="./utils/images/camera.png" id="camera_button_image">
+          </button>
+          <button class="call_button_small" id="screen_sharing_button">
+            <img src="./utils/images/switchCameraScreenSharing.png">
+          </button>
+        </div>
+        <div class="finish_chat_button_container display_none" id="finish_chat_button_container">
+          <button class="call_button_large" id="finish_chat_call_button">
+            <img src="./utils/images/hangUp.png">
+          </button>
+        </div>
+
+      </div>
+    </div>
+    <div class="messenger_container">
+      <div class="messages_container" id="messages_container"></div>
+      <div class="new_message_container " id="new_message">
+        <input type="text" class="new_message_input" id="new_message_input" placeholder="type your message">
+        <button class="send_message_button" id="send_message_button">
+          Send
+        </button>
+      </div>
+    </div>
+    <div class="dashboard_container display_none">
+      <div class="logo_container">
+        <img src="" alt="">
+      </div>
+      <div>
+        <div class="description_container">
+          <p class="description_container_paragraph">
+            Talk with other user by passing this personal code
+          </p>
+        </div>
+        <div class="personal_code_container">
+          <div class="personal_code_title_container">
+            <p class="personal_code_title_paragraph">
+              Your personal code
+            </p>
+          </div>
+          <div class="personal_code_value_container">
+            <p class="personal_code_value_paragraph" id="personal_code_paragraph"></p>
+            <button class="personal_code_copy_button" id="personal_code_copy_button">
+              <img src="./utils/images/copyButton.png" alt="">
+            </button>
+          </div>
+        </div>
+        <div class="personal_code_connecting_container">
+          <p class="personal_code_connecting_paragraph">Personal code</p>
+          <div class="personal_code_connecting_input_container">
+            <input type="text" class="personal_code_input" id="personal_code_input">
+          </div>
+          <div class="personal_code_connecting_buttons_container">
+            <button class="connecting_button" id="personal_code_chat_button">
+              <img src="./utils/images/chatButton.png" class="connecting_buttons_image">
+            </button>
+            <button class="connecting_button" id="personal_code_video_button">
+              <img src="./utils/images/videoButton.png" class="connecting_buttons_image">
+            </button>
+          </div>
+        </div>
+        <div class="stranger_connecting_container">
+          <p class="stranger_title_container">Stranger</p>
+          <div class="stranger_buttons_container">
+            <button class="connecting_button" id="stranger_chat_button">
+              <img src="./utils/images/chatButton.png" class="connecting_buttons_image">
+            </button>
+            <button class="connecting_button" id="">
+              <img src="./utils/images/videoButton.png" class="connecting_buttons_image">
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="checkbox_container">
+        <div class="checkbox_connection" id="allow_strangers_checkbox">
+          <img src="./utils/images/check.png" id="allow_strangers_checkbox_image" class="display_none">
+        </div>
+        <p class="checkbox_container_paragraph">Allow connection from strangers</p>
+      </div>
+      <div class="dashboard_blur display_none" id="dashboard_blur"></div>
+    </div>
+
+    <div id="dialog"></div>
+    <div id="timer" class="timer">10:00</div>
+    <div class="translation-container" id="translator">
+      <input type="text" id="from" placeholder="">
+      <select name="" id="choosen_language"></select>
+      <button id="translate">Translate</button>
+      <input type="text" id="to" placeholder="Translation">
+    </div>
+  </div>
+  <script src="./js/match.js" type="module"></script>
+  <script src="./js/translation.js" type="module"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="./js/controlls.js" type="module"></script>
+  <script src="./js/elements.js" type="module"></script>
+  <script src="./js/constants.js" type="module"></script>
+  <script src="./js/ui.js" type="module"></script>
+  <script src="./js/wss.js" type="module"></script>
+  <script src="./js/store.js" type="module"></script>
+  <script src="./js/webRTCHandler.js" type="module"></script>
+  <script src="./js/strangerUtils.js" type="module"></script>
+  <script src="./js/main.js" type="module"></script>
+  <script>
+    function toggleReviewPopup() {
+      document.getElementById("popup-1").classList.toggle("active");
+    }
+    function toggleFriendPopup() {
+      document.getElementById("popup-2").classList.toggle("active");
+    }
+    function toggleNotesPopup() {
+      document.getElementById("popup-allnote").classList.toggle("active");
+    }
+    function toggleNotePopup() {
+      document.getElementById("popup-singlenote").classList.toggle("active");
+    }
+    document.getElementById("stranger_video_button").addEventListener("click", function () {
+      document.getElementById('main_container').classList.remove("display_none");
+    });
+  </script>
+
+</body>
+
+</html>

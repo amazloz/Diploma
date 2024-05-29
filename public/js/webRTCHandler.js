@@ -7,6 +7,33 @@ let connectedUserDetails;
 let peerConnection;
 let dataChannel;
 
+//let strangerInterest = "Skateboarding";
+let myInterest;
+
+//let strangerLanguage = "English";
+let myLanguage;
+
+let myAge = localStorage.getItem("user_age");
+myAge = 2024 - myAge;
+console.log(myAge);
+
+const getMyLanguage = () => {
+  const nlanguageElement = document.getElementById("nlanguage");
+  return nlanguageElement
+    ? nlanguageElement.textContent.split(": ")[1]
+    : "unknown";
+};
+const getMyInterest = () => {
+  const interestElement = document.getElementById("interest");
+  return interestElement
+    ? interestElement.textContent.split(": ")[1]
+    : "unknown";
+};
+const getMyAge = () => {
+  const ageElement = document.getElementById("interest");
+  return ageElement ? ageElement.textContent.split(": ")[1] : "unknown";
+};
+
 const defaultConstraints = {
   audio: true,
   video: true,
@@ -25,7 +52,6 @@ export const getLocalPreview = () => {
     .getUserMedia(defaultConstraints)
     .then((stream) => {
       ui.updateLocalVideo(stream);
-      store.setCallState(constants.callState.CALL_AVAILABLE);
       store.setLocalStream(stream);
     })
     .catch((err) => {
@@ -41,7 +67,7 @@ const createPeerConnection = () => {
     const dataChannel = event.channel;
 
     dataChannel.onopen = () => {
-      console.log("peer connection is ready to receive data channel messages");
+      //console.log("peer connection is ready to receive data channel messages");
     };
 
     dataChannel.onmessage = (event) => {
@@ -65,7 +91,6 @@ const createPeerConnection = () => {
     }
   };
 
-  //recieve track
   const remoteStream = new MediaStream();
   store.setRemoteStream(remoteStream);
   ui.updateRemoteVideo(remoteStream);
@@ -91,11 +116,17 @@ export const sendMessageUsingDataChannel = (message) => {
   dataChannel.send(stringifiedMessage);
 };
 
-export const sendPreOffer = (callType, calleePersonalCode) => {
+export const sendPreOffer = (callType, calleePersonalCode, myAge) => {
+  myLanguage = getMyLanguage();
+  myInterest = getMyInterest();
   connectedUserDetails = {
     callType,
     socketId: calleePersonalCode,
+    language: myLanguage,
+    interest: myInterest,
+    myAge,
   };
+  console.log(connectedUserDetails);
 
   if (
     callType === constants.callType.CHAT_PERSONAL_CODE ||
@@ -104,6 +135,9 @@ export const sendPreOffer = (callType, calleePersonalCode) => {
     const data = {
       callType,
       calleePersonalCode,
+      callerLanguage: myLanguage,
+      callerInterest: myInterest,
+      myAge,
     };
     ui.showCallingDialog(callingDialogRejectCallHandler);
     store.setCallState(constants.callState.CALL_UNAVAILABLE);
@@ -116,6 +150,9 @@ export const sendPreOffer = (callType, calleePersonalCode) => {
     const data = {
       callType,
       calleePersonalCode,
+      callerLanguage: myLanguage,
+      callerInterest: myInterest,
+      myAge,
     };
     store.setCallState(constants.callState.CALL_UNAVAILABLE);
     wss.sendPreOffer(data);
@@ -123,7 +160,8 @@ export const sendPreOffer = (callType, calleePersonalCode) => {
 };
 
 export const handlePreOffer = (data) => {
-  const { callType, callerSocketId } = data;
+  const { callType, callerSocketId, callerLanguage, callerInterest } = data;
+  console.log("HandlePreOffer data: ", data);
 
   if (!checkCallPossibility()) {
     return sendPreOfferAnswer(constants.preOfferAnswer.CALL_UNAVAILABLE);
@@ -132,9 +170,10 @@ export const handlePreOffer = (data) => {
   connectedUserDetails = {
     socketId: callerSocketId,
     callType,
+    strangerLanguage: callerLanguage,
+    strangerInterest: callerInterest,
   };
-
-  store.setCallState(constants.callState.CALL_UNAVAILABLE);
+  console.log("handlePreOffer connectedUserDetails:", connectedUserDetails);
 
   if (
     callType === constants.callType.CHAT_PERSONAL_CODE ||
@@ -147,15 +186,29 @@ export const handlePreOffer = (data) => {
     callType === constants.callType.CHAT_STRANGER ||
     callType === constants.callType.VIDEO_STRANGER
   ) {
-    createPeerConnection();
-    sendPreOfferAnswer(constants.preOfferAnswer.CALL_ACCEPTED);
-    ui.showCallElements(connectedUserDetails.callType);
+    if (connectedUserDetails.strangerLanguage === myLanguage) {
+      if (myInterest === connectedUserDetails.strangerInterest) {
+        createPeerConnection();
+        sendPreOfferAnswer(constants.preOfferAnswer.CALL_ACCEPTED);
+        store.setCallState(constants.callState.CALL_UNAVAILABLE);
+        ui.showCallElements(connectedUserDetails.callType);
+      } else {
+        alert("No user found with same hobby!");
+        createPeerConnection();
+        sendPreOfferAnswer(constants.preOfferAnswer.CALL_ACCEPTED);
+        store.setCallState(constants.callState.CALL_UNAVAILABLE);
+        ui.showCallElements(connectedUserDetails.callType);
+      }
+    } else {
+      alert("No user found with same language learning!");
+    }
   }
 };
 
 const acceptCallHandler = () => {
   createPeerConnection();
   sendPreOfferAnswer(constants.preOfferAnswer.CALL_ACCEPTED);
+  store.setCallState(constants.callState.CALL_UNAVAILABLE);
   ui.showCallElements(connectedUserDetails.callType);
 };
 
@@ -169,7 +222,7 @@ const callingDialogRejectCallHandler = () => {
     connectedUserSocketId: connectedUserDetails.socketId,
   };
   closePeerConnectionAndResetState();
-
+  store.setCallState(constants.callState.CALL_AVAILABLE);
   wss.sendUserHangedUp(data);
 };
 
@@ -206,6 +259,7 @@ export const handlePreOfferAnswer = (data) => {
     ui.showCallElements(connectedUserDetails.callType);
     createPeerConnection();
     sendWebRTCOffer();
+    store.setCallState(constants.callState.CALL_UNAVAILABLE);
   }
 };
 
@@ -311,10 +365,17 @@ export const handleConnectedUserHangedUp = () => {
   closePeerConnectionAndResetState();
 };
 
+function toggleFriendPopup() {
+  document.getElementById("popup-2").classList.toggle("active");
+  console.log("toggled");
+}
+
 const closePeerConnectionAndResetState = () => {
   if (peerConnection) {
     peerConnection.close();
     peerConnection = null;
+    toggleFriendPopup();
+    window.location.href = "/match";
   }
   if (
     connectedUserDetails.callType === constants.callType.VIDEO_PERSONAL_CODE ||

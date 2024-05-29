@@ -5,22 +5,10 @@ import * as constants from "./constants.js";
 import * as ui from "./ui.js";
 import * as strangerUtils from "./strangerUtils.js";
 
-// initialization socketio connection
 const socket = io("/");
 wss.registerSocketEvents(socket);
 
 webRTCHandler.getLocalPreview();
-
-//register event listener for personal code copy button
-const personalCodeCopyButton = document.getElementById(
-  "personal_code_copy_button"
-);
-personalCodeCopyButton.addEventListener("click", () => {
-  const personalCode = store.getState().socketId;
-  navigator.clipboard && navigator.clipboard.writeText(personalCode);
-});
-
-// register event listener for connection buttons
 
 const personalCodeChatButton = document.getElementById(
   "personal_code_chat_button"
@@ -53,10 +41,50 @@ strangerChatButton.addEventListener("click", () => {
 
 const strangerVideoButton = document.getElementById("stranger_video_button");
 strangerVideoButton.addEventListener("click", () => {
+  const timerDisplay = document.getElementById("timer");
+  const tenMinutes = 60 * 10;
+  startTimer(tenMinutes, timerDisplay);
+  setTimeout(() => {
+    document.getElementById("finish_chat_call_button").click();
+  }, 600000);
   strangerUtils.getStrangerSocketIdAndConnect(
     constants.callType.VIDEO_STRANGER
   );
 });
+
+const strangerAudioButton = document.getElementById("stranger_audio_button");
+strangerAudioButton.addEventListener("click", () => {
+  const timerDisplay = document.getElementById("timer");
+  const tenMinutes = 60 * 10;
+  startTimer(tenMinutes, timerDisplay);
+  setTimeout(() => {
+    document.getElementById("finish_chat_call_button").click();
+  }, 600000);
+  strangerUtils.getStrangerSocketIdAndConnect(
+    constants.callType.VIDEO_STRANGER
+  );
+});
+let timerInterval;
+
+function startTimer(duration, display) {
+  let timer = duration,
+    minutes,
+    seconds;
+  timerInterval = setInterval(() => {
+    minutes = parseInt(timer / 60, 10);
+    seconds = parseInt(timer % 60, 10);
+
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    display.textContent = minutes + ":" + seconds;
+
+    if (--timer < 0) {
+      clearInterval(timerInterval);
+      document.getElementById("finish_chat_call_button").click();
+    }
+  }, 1000);
+}
 
 const checkbox = document.getElementById("allow_strangers_checkbox");
 checkbox.addEventListener("click", () => {
@@ -118,4 +146,9 @@ hangUpButton.addEventListener("click", () => {
 const hangUpChatButton = document.getElementById("finish_chat_call_button");
 hangUpChatButton.addEventListener("click", () => {
   webRTCHandler.handleHangUp();
+  toggleFriendPopup();
 });
+function toggleFriendPopup() {
+  document.getElementById("popup-2").classList.toggle("active");
+  console.log("toggled");
+}

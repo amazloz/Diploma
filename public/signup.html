@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <link rel="stylesheet" href="./css/log.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div>
+    <div id="navbar" class="navbar">
+      <div class="logo">
+        <a href="/">
+          <p>Talkis</p>
+        </a>
+      </div>
+    </div>
+    <div class="main-container">
+      <div class="title-container">
+        <p>Sign Up</p>
+      </div>
+      <div class="form-container">
+        <form id="signup-form" class="sign">
+          <input type="text" id="username" placeholder="Enter username" required>
+          <input type="email" id="email" placeholder="Enter email" required>
+          <input type="date" id="birthdate" placeholder="mm/dd/yyyy" required>
+          <select id="gender" required>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          <input type="password" id="password" placeholder="Enter password" required>
+          <input type="password" id="re_password" placeholder="Repeat password" required>
+          <button class="green long"><a href="/login">Log In</a></button>
+          <button type="submit" class="brown short" id="sign_up">Sign Up</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const birthdate = document.getElementById('birthdate');
+    const gender = document.getElementById('gender');
+    const password = document.getElementById('password');
+    const re_password = document.getElementById('re_password');
+    const sign_up_button = document.getElementById('sign_up');
+
+    function checkPassword() {
+      const passwordValue = password.value;
+      const rePasswordValue = re_password.value;
+      let message = "";
+
+      if (passwordValue.length < 8) {
+        message = "Passwords must be at least 8 characters";
+      } else if (passwordValue !== rePasswordValue) {
+        message = "Passwords do not match";
+      }
+
+      return message;
+    }
+
+    document.getElementById('signup-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const passwordCheckMessage = checkPassword();
+      if (passwordCheckMessage) {
+        alert(passwordCheckMessage);
+        return;
+      }
+
+      const infos = {
+        username: username.value,
+        email: email.value,
+        birthdate: birthdate.value,
+        gender: gender.value,
+        password: password.value,
+      }
+
+      try {
+        const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(infos)
+        });
+
+        const result = await response.json();
+
+        if (response.status === 201) {
+
+          window.location.href = '/login';
+        } else {
+          alert(result.message);
+        }
+      } catch (error) {
+        console.error("Error during sign-up:", error);
+        alert("An error occurred. Please try again.");
+      }
+    });
+  </script>
+</body>
+
+</html>

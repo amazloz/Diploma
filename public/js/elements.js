@@ -11,7 +11,7 @@ export const getIncomingCallDialog = (
 
   const title = document.createElement("p");
   title.classList.add("dialog_title");
-  title.innerHTML = `Incoming ${callTypeInfo} Call`;
+  title.innerHTML = `Incoming Call...`;
 
   const imageContainer = document.createElement("div");
   imageContainer.classList.add("dialog_image_container");
@@ -64,7 +64,7 @@ export const getCallingDialog = (rejectCallHandler) => {
 
   const title = document.createElement("p");
   title.classList.add("dialog_title");
-  title.innerHTML = `Calling`;
+  title.innerHTML = `Calling...`;
 
   const imageContainer = document.createElement("div");
   imageContainer.classList.add("dialog_image_container");

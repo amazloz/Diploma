@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In</title>
+  <link rel="stylesheet" href="./css/log.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div>
+    <div id="navbar" class="navbar">
+      <div class="logo">
+        <a href="/">
+          <p>Talkis</p>
+        </a>
+      </div>
+    </div>
+    <div class="main-container">
+      <div class="title-container">
+        <p>Log In</p>
+      </div>
+      <div class="form-container">
+        <form id="login-form" class="log">
+          <input type="text" id="username" placeholder="Enter username" required>
+          <input type="password" id="password" placeholder="Enter password" required>
+          <label for="password"><a href="">Forgot password?</a></label>
+          <div class="buttons-container">
+            <button class="green short"><a href="/signup">Sign Up</a></button>
+            <button type="submit" class="brown long" id="log_in_button">Log In</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+
+        const result = await response.json();
+
+        if (response.status === 200) {
+
+          localStorage.setItem('username', username);
+          window.location.href = '/profile';
+        } else {
+          alert(result.message);
+        }
+      } catch (error) {
+        console.error("Error during login:", error);
+        alert("An error occurred. Please try again.");
+      }
+    });
+  </script>
+</body>
+
+</html>

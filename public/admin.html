@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin</title>
+  <link rel="stylesheet" href="./css/after.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="admin-body">
+    <div class="user-container">
+      <div class="table-body">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Gender</th>
+              <th>Age</th>
+              <th>Rating</th>
+              <th>Active</th>
+              <th>Control</th>
+            </tr>
+          </thead>
+          <tbody id="results"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const results_body = document.querySelector('#results');
+    load_data();
+
+    function load_data() {
+      const request = new XMLHttpRequest();
+      request.open('GET', '/api/admin');
+
+      let html = '';
+
+      request.onreadystatechange = () => {
+        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+          const results = JSON.parse(request.responseText);
+
+          results.forEach(result => {
+            let birthdate = new Date(result.user_birthdate);
+            let today = new Date();
+            let age = today.getFullYear() - birthdate.getFullYear();
+            let monthDiff = today.getMonth() - birthdate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+              age--;
+            }
+
+            html += `
+              <tr>
+                <td>${result.user_id}</td>
+                <td>${result.user_name}</td>
+                <td>${result.user_email}</td>
+                <td>${result.user_gender}</td>
+                <td>${age}</td>
+                <td>${result.user_rating}</td>
+                <td>${result.isActive}</td>
+                <td><button class="notbad" onclick="deactivateUser('${result.user_name}')"><img src="./utils/images/notbad.png"></button></td>
+              </tr>
+            `;
+          });
+          results_body.innerHTML = html;
+        }
+      }
+      request.send();
+    }
+
+    function deactivateUser(username) {
+      fetch("/api/user/active", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, isActive: 0 })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message === "User active status updated successfully") {
+            alert("User deactivated successfully");
+            load_data(); // Refresh the table data
+          } else {
+            alert("Failed to deactivate user");
+          }
+        })
+        .catch(error => {
+          console.error("Error deactivating user:", error);
+          alert("An error occurred. Please try again.");
+        });
+    }
+  </script>
+</body>
+
+</html>

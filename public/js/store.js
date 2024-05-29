@@ -5,7 +5,7 @@ let state = {
   localStream: null,
   remoteStream: null,
   screenSharingStream: null,
-  allowConnectionsFromStrangers: false,
+  allowConnectionsFromStrangers: true,
   screenSharingActive: false,
   callState: constants.callState.CALL_AVAILABLE,
 };
@@ -15,7 +15,7 @@ export const setSocketId = (socketId) => {
     ...state,
     socketId,
   };
-  console.log(state);
+  //console.log(state);
 };
 
 export const setLocalStream = (stream) => {
@@ -23,7 +23,7 @@ export const setLocalStream = (stream) => {
     ...state,
     localStream: stream,
   };
-  console.log(state);
+  //console.log(state);
 };
 
 export const setAllowConnectionsFromStrangers = (allowConnection) => {
@@ -31,7 +31,7 @@ export const setAllowConnectionsFromStrangers = (allowConnection) => {
     ...state,
     allowConnectionsFromStrangers: allowConnection,
   };
-  console.log(state);
+  //console.log(state);
 };
 
 export const setScreenSharingActive = (screenSharingActive) => {
@@ -39,7 +39,7 @@ export const setScreenSharingActive = (screenSharingActive) => {
     ...state,
     screenSharingActive,
   };
-  console.log(state);
+  //console.log(state);
 };
 
 export const setScreenSharingStream = (stream) => {
@@ -47,7 +47,7 @@ export const setScreenSharingStream = (stream) => {
     ...state,
     ScreenSharingStream: stream,
   };
-  console.log(state);
+  //console.log(state);
 };
 
 export const setRemoteStream = (stream) => {
@@ -55,7 +55,7 @@ export const setRemoteStream = (stream) => {
     ...state,
     remoteStream: stream,
   };
-  console.log(state);
+  //console.log(state);
 };
 
 export const setCallState = (callState) => {
@@ -63,7 +63,7 @@ export const setCallState = (callState) => {
     ...state,
     callState,
   };
-  console.log(state);
+  //console.log(state);
 };
 
 export const getState = () => {

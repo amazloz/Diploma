@@ -9,13 +9,17 @@ let socketIO = null;
 export const registerSocketEvents = (socket) => {
   socketIO = socket;
   socket.on("connect", () => {
-    console.log("successfully connected to socketio server");
+    console.log("successfully connected to socketio server", socket.id);
+    console.log(nlanguage);
+    console.log(llanguage);
     store.setSocketId(socket.id);
     ui.updatePersonalCode(socket.id);
+    localStorage.setItem("socketId", socket.id);
   });
 
   socket.on("pre-offer", (data) => {
     webRTCHandler.handlePreOffer(data);
+    console.log(data);
   });
 
   socket.on("pre-offer-answer", (data) => {
@@ -49,6 +53,7 @@ export const registerSocketEvents = (socket) => {
 
 export const sendPreOffer = (data) => {
   socketIO.emit("pre-offer", data);
+  console.log("sendPreOffer data:", data);
 };
 
 export const sendPreOfferAnswer = (data) => {

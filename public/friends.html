@@ -1,0 +1,116 @@
+<html>
+
+<head>
+  <title>Friends</title>
+  <link rel="stylesheet" href="./css/after.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div>
+    <div id="navbar" class="navbar">
+      <div class="logo">
+        <a href="/">
+          <p>Talkis</p>
+        </a>
+      </div>
+      <div class="menu-container">
+        <a href="/match">Match</a>
+        <a href="/profile">Profile</a>
+        <a href="/friends">Friends</a>
+      </div>
+      <div class="button-container">
+        <button class="brown short"><a href="/">Log out</a></button>
+      </div>
+    </div>
+    <div class="admin-body">
+      <div class="user-container">
+        <div class="table-body">
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Gender</th>
+                <th>Age</th>
+                <th>Learning</th>
+                <th>Hobby</th>
+                <th>Controls</th>
+
+              </tr>
+            </thead>
+            <tbody id="results"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const results_body = document.querySelector('#results');
+    const id = localStorage.getItem("user_id");
+    load_data();
+    function load_data() {
+      const request = new XMLHttpRequest();
+      request.open(`get`, `/api/friends?id=${id}`);
+
+      let html = ``;
+
+      request.onreadystatechange = () => {
+        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+          const results = JSON.parse(request.responseText);
+
+          results.forEach(result => {
+            let birthdate = new Date(result.user_birthdate);
+            let today = new Date();
+            let age = today.getFullYear() - birthdate.getFullYear();
+            let monthDiff = today.getMonth() - birthdate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+              age--;
+            }
+
+            html += `
+            <tr>
+              <td>`+ result.user_name + `</td>
+              <td>`+ result.user_gender + `</td>
+              <td>`+ age + `</td>
+              <td>`+ result.user_llanguage + `</td>
+              <td>`+ result.user_interest + `</td>
+              <td><button class="notbad" id="callfriend_button"><img src="./utils/images/call.png"></button>
+                <button class="notbad deletefriend_button" data-friend-id="${result.user_id}"><img src="./utils/images/delete.png"></button>
+                </td>
+            </tr>
+            `
+          })
+          results_body.innerHTML = html;
+          document.querySelectorAll('.deletefriend_button').forEach(button => {
+            button.addEventListener('click', (e) => {
+              const friendId = e.target.closest('.deletefriend_button').getAttribute('data-friend-id');
+              deleteFriend(id, friendId);
+              console.log('deleted clicked')
+            });
+          });
+        }
+
+      }
+      request.send();
+    }
+
+    function deleteFriend(user_id1, user_id2) {
+      const request = new XMLHttpRequest();
+      request.open('DELETE', `/api/friends?user_id1=${user_id1}&user_id2=${user_id2}`);
+      request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+      request.onreadystatechange = () => {
+        if (request.readyState === XMLHttpRequest.DONE && request.status === 200) {
+          load_data();
+          console.log('deleted')
+        }
+      };
+      request.send(JSON.stringify({ user_id1, user_id2 }));
+    }
+
+    load_data();
+  </script>
+</body>
+
+</html>

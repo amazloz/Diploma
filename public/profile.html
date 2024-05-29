@@ -1,0 +1,422 @@
+<html>
+
+<head>
+  <title>Profile</title>
+  <link rel="stylesheet" href="./css/after.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div>
+    <div id="navbar" class="navbar">
+      <div class="logo">
+        <a href="/">
+          <p>Talkis</p>
+        </a>
+      </div>
+      <div class="menu-container">
+        <a href="/match">Match</a>
+        <a href="/profile">Profile</a>
+        <a href="/friends">Friends</a>
+      </div>
+      <div class="button-container">
+        <button class="brown short"><a href="/">Log out</a></button>
+      </div>
+    </div>
+    <div class="profile-container">
+      <div class="avatar"><img id="avatar-img" src="./utils/images/boy.png" alt=""></div>
+      <div class="info-container">
+        <div class="user-info">
+          <div class="buttons-container"><button class="edit brown" onclick="toggleUserInfoPopup()">Edit user
+              info</button></div>
+          <div class="infos-container">
+            <p id="all_info"></p>
+          </div>
+        </div>
+        <div class="other-info">
+          <div class="buttons-container"><button class="edit brown" onclick="toggleNlanguagePopup()">+ Native
+              Language</button></div>
+          <div>
+            <p id="nlanguage"></p>
+          </div>
+        </div>
+        <div class="other-info">
+          <div class="buttons-container"><button class="edit brown" onclick="toggleLlanguagePopup()">+ Learning
+              Language</button></div>
+          <div>
+            <p id="llanguage"></p>
+          </div>
+        </div>
+        <div class="other-info">
+          <div class="buttons-container"><button class="edit brown" onclick="toggleInterestPopup()">+ Hobby</button>
+          </div>
+          <div>
+            <p id="interest"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup" id="popup-userinfo">
+      <div class="overlay">
+        <div class="userinfo-content">
+          <div class="userinfo-container">
+            <div class="userinfo-header">
+              <h1>Edit User Info</h1>
+            </div>
+            <div class="userinfo-body">
+              <input type="text" id="edit-username" />
+              <input type="email" id="edit-email" />
+              <input type="date" id="edit-birthdate" />
+              <select id="edit-gender">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div class="userinfo-footer">
+              <button class="save-button brown long" id="saveuserinfo-button" onclick="saveUserInfo()">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup" id="popup-interests">
+      <div class="overlay">
+        <div class="interests-content">
+          <div class="interest-container">
+            <div class="interest-header">
+              <h1>Choose your hobby</h1>
+            </div>
+            <div class="interest-body" id="interest-buttons"></div>
+            <div class="interest-footer">
+              <button class="save-button brown long" id="saveinterest-button"
+                onclick="toggleInterestPopup()">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup" id="popup-nlanguage">
+      <div class="overlay">
+        <div class="interests-content">
+          <div class="interest-container">
+            <div class="interest-header">
+              <h1>Choose your native language</h1>
+            </div>
+            <div class="interest-body" id="nlanguage-buttons"></div>
+            <div class="interest-footer">
+              <button class="save-button brown long" id="savenlanguage-button"
+                onclick="toggleNlanguagePopup()">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup" id="popup-llanguage">
+      <div class="overlay">
+        <div class="interests-content">
+          <div class="interest-container">
+            <div class="interest-header">
+              <h1>Choose your learning language</h1>
+            </div>
+            <div class="interest-body" id="llanguage-buttons"></div>
+            <div class="interest-footer">
+              <button class="save-button brown long" id="savellanguage-button"
+                onclick="toggleLlanguagePopup()">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const all_info = document.getElementById("all_info");
+    const nlanguage = document.getElementById("nlanguage");
+    const llanguage = document.getElementById("llanguage");
+    const interest = document.getElementById("interest");
+    const avatarImg = document.getElementById("avatar-img");
+    const interestButtonsContainer = document.getElementById("interest-buttons");
+    const llanguageButtonsContainer = document.getElementById("llanguage-buttons");
+    const nlanguageButtonsContainer = document.getElementById("nlanguage-buttons");
+    const username = localStorage.getItem('username');
+    localStorage.setItem("Stranger_username", "");
+    localStorage.setItem("StrangerCall", "available");
+    localStorage.setItem("respectful", "no");
+    localStorage.setItem("overAge", "no");
+    localStorage.setItem("friend", "no");
+    localStorage.setItem("callType", "audio");
+    let selectedInterest = '';
+    let selectedNLanguage = '';
+    let selectedLLanguage = '';
+
+    const userInfo = async () => {
+      if (!username) {
+        alert('No user logged in');
+        window.location.href = '/login';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/profile?username=${username}`, {
+          method: 'GET',
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem('user_id', data.user_id);
+          localStorage.setItem('user_gender', data.user_gender);
+          localStorage.setItem('user_nativelanguage', data.user_nlanguage);
+          localStorage.setItem('user_interest', data.user_interest);
+          localStorage.setItem('user_email', data.user_email);
+          localStorage.setItem('user_birthdate', data.user_birthdate);
+          localStorage.setItem('user_gender', data.user_gender);
+          const birthdate = new Date(data.user_birthdate);
+          const formattedBirthdate = `${birthdate.getFullYear()}/${birthdate.getMonth() + 1}/${birthdate.getDate()}`;
+          localStorage.setItem('user_age', birthdate.getFullYear());
+          all_info.innerHTML = `Username: ${data.user_name}<br><br>Email address: ${data.user_email}<br><br>Birthdate: ${formattedBirthdate}<br><br>Gender: ${data.user_gender}`;
+          nlanguage.textContent = data.user_nlanguage;
+          llanguage.textContent = data.user_llanguage;
+          interest.textContent = data.user_interest;
+
+          if (data.user_gender === 'male') {
+            avatarImg.src = './utils/images/boy.png';
+          } else if (data.user_gender === 'female') {
+            avatarImg.src = './utils/images/girl.png';
+          } else {
+            avatarImg.src = './utils/images/boy.png';
+          }
+        } else {
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+        alert("An error occurred. Please try again.");
+        window.location.href = '/login';
+      }
+    }
+
+    function toggleUserInfoPopup() {
+      document.getElementById("popup-userinfo").classList.toggle("active");
+
+      document.getElementById('edit-username').value = username;
+      document.getElementById('edit-email').value = localStorage.getItem('user_email');
+      document.getElementById('edit-birthdate').value = localStorage.getItem('user_birthdate');
+      document.getElementById('edit-gender').value = localStorage.getItem('user_gender');
+    }
+
+    async function saveUserInfo() {
+      const updatedUsername = document.getElementById('edit-username').value;
+      const updatedEmail = document.getElementById('edit-email').value;
+      const updatedBirthdate = document.getElementById('edit-birthdate').value;
+      const updatedGender = document.getElementById('edit-gender').value;
+
+      if (!updatedUsername || !updatedEmail || !updatedBirthdate || !updatedGender) {
+        alert('All fields are required');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/editprofile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: username,
+            updatedusername: updatedUsername,
+            email: updatedEmail,
+            birthdate: updatedBirthdate,
+            gender: updatedGender
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            console.log('User info updated successfully');
+            localStorage.setItem('username', username);
+            localStorage.setItem('user_birthdate', updatedBirthdate);
+            console.log(data.message)
+            userInfo();
+            toggleUserInfoPopup();
+          } else {
+            throw new Error(data.message);
+          }
+        } else {
+          throw new Error('Failed to update user info');
+        }
+      } catch (error) {
+        console.error('Error updating user info:', error);
+        alert('An error occurred while updating user info. Please try again.');
+      }
+    }
+
+    const fetchLanguages = async () => {
+      try {
+        const response = await fetch('/api/languages');
+        if (!response.ok) {
+          throw new Error('Failed to fetch languages');
+        }
+        const languages = await response.json();
+        languages.forEach(language => {
+          const button = document.createElement('button');
+          button.textContent = language.language_name;
+          button.classList.add('nlanguage-button');
+          button.addEventListener('click', () => {
+            selectedNLanguage = language.language_name;
+            document.querySelectorAll('.nlanguage-button').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+          });
+          nlanguageButtonsContainer.appendChild(button);
+        });
+        languages.forEach(language => {
+          const button = document.createElement('button');
+          button.textContent = language.language_name;
+          button.classList.add('llanguage-button');
+          button.addEventListener('click', () => {
+            selectedLLanguage = language.language_name;
+            document.querySelectorAll('.llanguage-button').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+          });
+          llanguageButtonsContainer.appendChild(button);
+        });
+      } catch (error) {
+        console.error('Error fetching languages:', error);
+      }
+    }
+
+    const fetchInterests = async () => {
+      try {
+        const response = await fetch('/api/interests');
+        if (!response.ok) {
+          throw new Error('Failed to fetch interests');
+        }
+        const interests = await response.json();
+        interests.forEach(interest => {
+          const button = document.createElement('button');
+          button.textContent = interest.interest_name;
+          button.classList.add('interest-button');
+          button.addEventListener('click', () => {
+            selectedInterest = interest.interest_name;
+            document.querySelectorAll('.interest-button').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+          });
+          interestButtonsContainer.appendChild(button);
+        });
+      } catch (error) {
+        console.error('Error fetching interests:', error);
+      }
+    };
+
+    window.onload = function () {
+      userInfo();
+      fetchInterests();
+      fetchLanguages();
+    };
+    localStorage.setItem("StrangerCall", "incall");
+    document.getElementById('savenlanguage-button').addEventListener('click', async function () {
+      if (!selectedNLanguage) {
+        alert('Please select an native language');
+        return;
+      }
+      try {
+        const response = await fetch(`/api/languages/${username}?message=native_language`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ language: selectedNLanguage })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update native language');
+        }
+        const data = await response.json();
+        if (data.success) {
+          console.log('Native language updated successfully');
+          userInfo();
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error('Error updating native language:', error);
+        alert('An error occurred while updating native language. Please try again.');
+      }
+    });
+
+    document.getElementById('savellanguage-button').addEventListener('click', async function () {
+      if (!selectedLLanguage) {
+        alert('Please select an learning language');
+        return;
+      }
+      try {
+        const response = await fetch(`/api/languages/${username}?message=learning_language`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ language: selectedLLanguage })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update learning language');
+        }
+        const data = await response.json();
+        if (data.success) {
+          console.log('Learning language updated successfully');
+          userInfo();
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error('Error updating learning language:', error);
+        alert('An error occurred while updating learning language. Please try again.');
+      }
+    });
+
+    document.getElementById('saveinterest-button').addEventListener('click', async function () {
+      if (!selectedInterest) {
+        alert('Please select an interest');
+        return;
+      }
+      try {
+        const response = await fetch(`/api/interests/${username}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ interest: selectedInterest })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update interest');
+        }
+        const data = await response.json();
+        if (data.success) {
+          console.log('Interest updated successfully');
+          userInfo();
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.error('Error updating interest:', error);
+        alert('An error occurred while updating interest. Please try again.');
+      }
+    });
+
+    function toggleUserinfoPopup() {
+      document.getElementById("popup-userinfo").classList.toggle("active");
+    }
+
+    function toggleInterestPopup() {
+      document.getElementById("popup-interests").classList.toggle("active");
+    }
+
+    function toggleNlanguagePopup() {
+      document.getElementById("popup-nlanguage").classList.toggle("active");
+    }
+
+    function toggleLlanguagePopup() {
+      document.getElementById("popup-llanguage").classList.toggle("active");
+    }
+  </script>
+</body>
+
+</html>
